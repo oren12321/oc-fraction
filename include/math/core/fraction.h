@@ -15,7 +15,7 @@ namespace math::core::types {
     template <typename T>
     concept Decimal = std::is_floating_point_v<T>;
 
-    template <Integer I>
+    template <Integer I = int, Decimal F = float>
     class Fraction {
     public:
         Fraction(I n = I{ 0 }, I d = I{ 1 })
@@ -27,7 +27,7 @@ namespace math::core::types {
                 return;
             }
 
-            I sign = (n_ * d_) / std::abs(n_ * d_);
+            I sign = (n_ < 0 || d_ < 0) ? I{ -1 } : I{ 1 };
             n_ = std::abs(n_) * sign;
             d_ = std::abs(d_);
 
@@ -36,37 +36,44 @@ namespace math::core::types {
             d_ /= g;
         }
 
-        template <Decimal F>
         Fraction(F d)
         {
             *this = decimal_to_fraction(d);
         }
 
-        I n()
+        I n() const noexcept
         {
             return n_;
         }
 
-        I d()
+        I d() const noexcept
         {
             return d_;
         }
 
-        Fraction<I> operator-()
+        Fraction<I, F> operator-() const noexcept
         {
             return { -n_, d_ };
         }
 
-        Fraction<I> reciprocal()
+        Fraction<I, F> reciprocal() const
         {
             CORE_EXPECT(n_ != I{ 0 }, std::overflow_error, "division by zero");
 
             I sign = (n_ * d_) / std::abs(n_ * d_);
-            return { n_ * sign, std::abs(d_) };
+            return { d_ * sign, std::abs(n_) };
+        }
+
+        template <Integer I_o, Decimal F_o>
+        friend bool operator==(const Fraction<I_o, F_o>& lhs, const Fraction<I_o, F_o>& rhs) noexcept;
+
+        operator F() const noexcept
+        {
+            return static_cast<F>(n_) / static_cast<F>(d_);
         }
 
     private:
-        static I gcd(const Fraction<I>& f)
+        static I gcd(const Fraction<I, F>& f) noexcept
         {
             I t;
             I a = f.n_;
@@ -93,8 +100,7 @@ namespace math::core::types {
         //     Ni+1 = ROUND(X x Di+1)
         // Result:
         //     Ni+1/Di+1
-        template <Decimal F>
-        static Fraction<I> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 })
+        static Fraction<I, F> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 }) noexcept
         {
             F sign = decimal >= F{0} ? F{1} : F{-1};
 
@@ -145,6 +151,12 @@ namespace math::core::types {
         I n_{ 0 };
         I d_{ 0 };
     };
+
+    template<Integer I, Decimal F>
+    inline bool operator==(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+    {
+        return lhs.n_ == rhs.n_ && lhs.d_ == rhs.d_;
+    }
 }
 
 #endif

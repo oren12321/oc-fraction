@@ -59,7 +59,7 @@ namespace math::core::types {
 
         Fraction<I> reciprocal()
         {
-            CORE_EXCEPT(n_ != I{ 0 }, std::overflow_error, "division by zero");
+            CORE_EXPECT(n_ != I{ 0 }, std::overflow_error, "division by zero");
 
             I sign = (n_ * d_) / std::abs(n_ * d_);
             return { n_ * sign, std::abs(d_) };
@@ -94,35 +94,52 @@ namespace math::core::types {
         // Result:
         //     Ni+1/Di+1
         template <Decimal F>
-        static Fraction<I> decimal_to_fraction(F decimal, F accuracy = F{ 1e-5 })
+        static Fraction<I> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 })
         {
-            if (static_cast<I>(decimal) == decimal) {
-                return { static_cast<I>(decimal), I{ 1 } };
+            F sign = decimal >= F{0} ? F{1} : F{-1};
+
+            F decimal_abs = std::abs(decimal);
+
+            F decimal_int_part{std::floor(decimal_abs)};
+            F decimal_fractional_part{decimal_abs - decimal_int_part};
+
+            if (decimal_abs == decimal_int_part) {
+                return { static_cast<I>(sign * decimal_abs), I{1} };
             }
 
-            I sign = decimal > 0 ? I{ 1 } : I{ -1 };
-            F unsigned_decimal = std::abs(decimal);
+            F z_i{decimal_abs};
+            F d_i{1};
+            F d_i_minus_1{0};
 
-            F z_i{ unsigned_decimal };
-            I d_i{ 1 };
-            I d_i_minus_1{ 0 };
+            F n_i{0}; // Used for overflow check
 
-            F z_i_plus_1{ static_cast<F>(1) / (z_i - static_cast<I>(z_i)) };
-            I d_i_plus_1{ d_i * static_cast<I>(z_i_plus_1) + d_i_minus_1 };
-            I n_i_plus_1{ static_cast<I>(std::round(unsigned_decimal * d_i_plus_1)) };
+            F z_i_plus_1{F{1} / (z_i - std::floor(z_i))};
+            F d_i_plus_1{d_i * std::floor(z_i_plus_1) + d_i_minus_1};
+            F n_i_plus_1{std::round(decimal_abs * d_i_plus_1)};
+
+            F z_i_int_part{std::floor(z_i)};
 
             while (
-                static_cast<I>(z_i) != z_i &&
-                std::abs(unsigned_decimal - static_cast<F>(n_i_plus_1) / d_i_plus_1) > accuracy) {
+                z_i_int_part != z_i &&
+                std::abs(decimal_abs - n_i_plus_1 / d_i_plus_1) > accuracy) {
                 z_i = z_i_plus_1;
                 d_i_minus_1 = d_i;
                 d_i = d_i_plus_1;
 
-                z_i_plus_1 = static_cast<F>(1) / (z_i - static_cast<I>(z_i));
-                d_i_plus_1 = d_i * static_cast<I>(z_i_plus_1) + d_i_minus_1;
-                n_i_plus_1 = static_cast<I>(std::round(unsigned_decimal * d_i_plus_1));
+                n_i = n_i_plus_1;
+
+                z_i_plus_1 = F{1} / (z_i - std::floor(z_i));
+                d_i_plus_1 = d_i * std::floor(z_i_plus_1) + d_i_minus_1;
+                n_i_plus_1 = std::round(decimal_abs * d_i_plus_1);
+
+                z_i_int_part = std::floor(z_i);
+
+                F max_int{static_cast<F>(std::numeric_limits<I>::max())};
+                if (n_i_plus_1 > max_int || d_i_plus_1 > max_int) {
+                    return { static_cast<I>(sign * n_i), static_cast<I>(d_i) };
+                }
             }
-            return { sign * n_i_plus_1, d_i_plus_1 };
+            return { static_cast<I>(sign * n_i_plus_1), static_cast<I>(d_i_plus_1) };
         }
 
         I n_{ 0 };

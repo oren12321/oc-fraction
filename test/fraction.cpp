@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <numbers>
+#include <cmath>
 
 #include <math/core/fraction.h>
 
@@ -99,7 +100,7 @@ TEST(Fraction_test, can_be_added_to_a_fraction_integer_or_decimal)
 
     Fraction f1{ 1, 2 };
     EXPECT_EQ((f1 + Fraction{ 1, 2 }), (Fraction{ 1 }));
-    EXPECT_EQ(f1 + 0.5, 1);
+    EXPECT_EQ(0.5 + f1, 1);
     EXPECT_EQ(f1 + 1, 1.5);
 
     f1 += 1;
@@ -112,7 +113,7 @@ TEST(Fraction_test, can_be_subracted_from_a_fraction_integer_or_decimal)
 
     Fraction f1{ 1, 2 };
     EXPECT_EQ((f1 - Fraction{ 1, 2 }), (Fraction{}));
-    EXPECT_EQ(f1 - 0.5, 0);
+    EXPECT_EQ(-0.5 + f1, 0);
     EXPECT_EQ(f1 - 1, -0.5);
 
     f1 -= 1;
@@ -125,7 +126,7 @@ TEST(Fraction_test, can_be_multiply_by_a_fraction_integer_or_decimal)
 
     Fraction f1{ 1, 2 };
     EXPECT_EQ((f1 * Fraction{ 1, 2 }), (Fraction{1, 4}));
-    EXPECT_EQ(f1 * 0.5, 0.25);
+    EXPECT_EQ(0.5 * f1, 0.25);
     EXPECT_EQ(f1 * 1, 0.5);
 
     f1 *= 2;
@@ -138,9 +139,25 @@ TEST(Fraction_test, can_be_divided_by_a_fraction_integer_or_decimal)
 
     Fraction f1{ 1, 2 };
     EXPECT_EQ((f1 / Fraction{ 1, 2 }), (Fraction{ 1, 1 }));
-    EXPECT_EQ(f1 / 0.5, 1);
+    EXPECT_EQ(0.5 / f1, 1);
     EXPECT_EQ(f1 / 2, 0.25);
 
     f1 /= 2;
     EXPECT_EQ(f1, 0.25);
+}
+
+TEST(Fraction_test, can_be_powered_by_a_fraction_integer_or_decimal)
+{
+    using namespace math::core::types;
+
+    Fraction f1{ 1, 4 };
+    EXPECT_EQ((f1 ^ Fraction{}), 1);
+    EXPECT_EQ(std::pow(f1, 0), 1);
+    EXPECT_EQ(std::pow(f1, 0.5f), 0.5);
+    EXPECT_EQ(std::pow(0.0625f, f1), 0.5);
+    EXPECT_EQ(f1 ^ 0.5f, 0.5);
+    EXPECT_EQ(0.0625f ^ f1, 0.5);
+
+    f1 ^= 2;
+    EXPECT_EQ(f1, 0.0625);
 }

@@ -114,6 +114,21 @@ namespace math::core::types {
             return operator*=(other.reciprocal());
         }
 
+        template <Integer I_o, Decimal F_o>
+        friend Fraction<I_o, F_o> operator^(const Fraction<I_o, F_o>& lhs, const Fraction<I_o, F_o>& rhs) noexcept;
+
+        template <Integer I_o, Decimal F_o>
+        friend Fraction<I_o, F_o> operator^(const Fraction<I_o, F_o>& lhs, F_o rhs) noexcept;
+
+        template <Integer I_o, Decimal F_o>
+        friend Fraction<I_o, F_o> operator^(F_o lhs, const Fraction<I_o, F_o>& rhs) noexcept;
+
+        Fraction<I, F>& operator^=(const Fraction<I, F>& other) noexcept
+        {
+            *this = std::pow(static_cast<F>(*this), static_cast<F>(other));
+            return *this;
+        }
+
     private:
         static I gcd(I a, I b) noexcept
         {
@@ -228,6 +243,24 @@ namespace math::core::types {
     inline Fraction<I, F> operator/(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
     {
         return operator*(lhs, rhs.reciprocal());
+    }
+
+    template<Integer I, Decimal F>
+    inline Fraction<I, F> operator^(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+    {
+        return std::pow(static_cast<F>(lhs), static_cast<F>(rhs));
+    }
+
+    template<Integer I, Decimal F>
+    inline Fraction<I, F> operator^(const Fraction<I, F>& lhs, F rhs) noexcept
+    {
+        return std::pow(static_cast<F>(lhs), rhs);
+    }
+
+    template<Integer I, Decimal F>
+    inline Fraction<I, F> operator^(F lhs, const Fraction<I, F>& rhs) noexcept
+    {
+        return std::pow(lhs, static_cast<F>(rhs));
     }
 }
 

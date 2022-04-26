@@ -31,7 +31,7 @@ namespace math::core::types {
             n_ = std::abs(n_) * sign;
             d_ = std::abs(d_);
 
-            I g = gcd(*this);
+            I g = gcd(n_, d_);
             n_ /= g;
             d_ /= g;
         }
@@ -72,12 +72,52 @@ namespace math::core::types {
             return static_cast<F>(n_) / static_cast<F>(d_);
         }
 
+        template <Integer I_o, Decimal F_o>
+        friend Fraction<I_o, F_o> operator+(const Fraction<I_o, F_o>& lhs, const Fraction<I_o, F_o>& rhs) noexcept;
+
+        Fraction<I, F>& operator+=(const Fraction<I, F> other) noexcept
+        {
+            n_ = n_ * other.d_ + other.n_ * d_;
+            d_ = d_ * other.d_;
+            I g{ gcd(n_, d_) };
+            n_ /= g;
+            d_ /= g;
+            return *this;
+        }
+
+        template <Integer I_o, Decimal F_o>
+        friend Fraction<I_o, F_o> operator-(const Fraction<I_o, F_o>& lhs, const Fraction<I_o, F_o>& rhs) noexcept;
+
+        Fraction<I, F>& operator-=(const Fraction<I, F> other) noexcept
+        {
+            return operator+=(-other);
+        }
+
+        template <Integer I_o, Decimal F_o>
+        friend Fraction<I_o, F_o> operator*(const Fraction<I_o, F_o>& lhs, const Fraction<I_o, F_o>& rhs) noexcept;
+
+        Fraction<I, F>& operator*=(const Fraction<I, F> other) noexcept
+        {
+            n_ *= other.n_;
+            d_ *= other.d_;
+            I g{ gcd(n_, d_) };
+            n_ /= g;
+            d_ /= g;
+            return *this;
+        }
+
+        template <Integer I_o, Decimal F_o>
+        friend Fraction<I_o, F_o> operator/(const Fraction<I_o, F_o>& lhs, const Fraction<I_o, F_o>& rhs) noexcept;
+
+        Fraction<I, F>& operator/=(const Fraction<I, F> other) noexcept
+        {
+            return operator*=(other.reciprocal());
+        }
+
     private:
-        static I gcd(const Fraction<I, F>& f) noexcept
+        static I gcd(I a, I b) noexcept
         {
             I t;
-            I a = f.n_;
-            I b = f.d_;
             if (a > b) {
                 t = b;
                 b = a;
@@ -156,6 +196,38 @@ namespace math::core::types {
     inline bool operator==(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
     {
         return lhs.n_ == rhs.n_ && lhs.d_ == rhs.d_;
+    }
+
+    template<Integer I, Decimal F>
+    inline Fraction<I, F> operator+(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+    {
+        Fraction<I, F> sum{ lhs.n_ * rhs.d_ + rhs.n_ * lhs.d_, lhs.d_ * rhs.d_ };
+        I g{ Fraction<I, F>::gcd(sum.n_, sum.d_) };
+        sum.n_ /= g;
+        sum.d_ /= g;
+        return sum;
+    }
+
+    template<Integer I, Decimal F>
+    inline Fraction<I, F> operator-(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+    {
+        return operator+(lhs, -rhs);
+    }
+
+    template<Integer I, Decimal F>
+    inline Fraction<I, F> operator*(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+    {
+        Fraction<I, F> multiplication{ lhs.n_ * rhs.n_, lhs.d_ * rhs.d_ };
+        I g{ Fraction<I, F>::gcd(multiplication.n_, multiplication.d_) };
+        multiplication.n_ /= g;
+        multiplication.d_ /= g;
+        return multiplication;
+    }
+
+    template<Integer I, Decimal F>
+    inline Fraction<I, F> operator/(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+    {
+        return operator*(lhs, rhs.reciprocal());
     }
 }
 

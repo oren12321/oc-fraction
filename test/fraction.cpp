@@ -92,3 +92,55 @@ TEST(Fraction_test, can_have_improved_accuracy)
 
     EXPECT_GE(error1, error2);
 }
+
+TEST(Fraction_test, can_be_added_to_a_fraction_integer_or_decimal)
+{
+    using namespace math::core::types;
+
+    Fraction f1{ 1, 2 };
+    EXPECT_EQ((f1 + Fraction{ 1, 2 }), (Fraction{ 1 }));
+    EXPECT_EQ(f1 + 0.5, 1);
+    EXPECT_EQ(f1 + 1, 1.5);
+
+    f1 += 1;
+    EXPECT_EQ(f1, 1.5);
+}
+
+TEST(Fraction_test, can_be_subracted_from_a_fraction_integer_or_decimal)
+{
+    using namespace math::core::types;
+
+    Fraction f1{ 1, 2 };
+    EXPECT_EQ((f1 - Fraction{ 1, 2 }), (Fraction{}));
+    EXPECT_EQ(f1 - 0.5, 0);
+    EXPECT_EQ(f1 - 1, -0.5);
+
+    f1 -= 1;
+    EXPECT_EQ(f1, -0.5);
+}
+
+TEST(Fraction_test, can_be_multiply_by_a_fraction_integer_or_decimal)
+{
+    using namespace math::core::types;
+
+    Fraction f1{ 1, 2 };
+    EXPECT_EQ((f1 * Fraction{ 1, 2 }), (Fraction{1, 4}));
+    EXPECT_EQ(f1 * 0.5, 0.25);
+    EXPECT_EQ(f1 * 1, 0.5);
+
+    f1 *= 2;
+    EXPECT_EQ(f1, 1);
+}
+
+TEST(Fraction_test, can_be_divided_by_a_fraction_integer_or_decimal)
+{
+    using namespace math::core::types;
+
+    Fraction f1{ 1, 2 };
+    EXPECT_EQ((f1 / Fraction{ 1, 2 }), (Fraction{ 1, 1 }));
+    EXPECT_EQ(f1 / 0.5, 1);
+    EXPECT_EQ(f1 / 2, 0.25);
+
+    f1 /= 2;
+    EXPECT_EQ(f1, 0.25);
+}

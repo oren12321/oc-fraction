@@ -27,7 +27,7 @@ namespace math::core::types {
                 return;
             }
 
-            I sign = (n_ < 0 || d_ < 0) ? I{ -1 } : I{ 1 };
+            I sign = (n_ < I{ 0 } || d_ < I{ 0 }) ? I{ -1 } : I{ 1 };
             n_ = std::abs(n_) * sign;
             d_ = std::abs(d_);
 
@@ -123,7 +123,7 @@ namespace math::core::types {
                 b = a;
                 a = t;
             }
-            while (b != 0) {
+            while (b != I{ 0 }) {
                 t = a % b;
                 a = b;
                 b = t;

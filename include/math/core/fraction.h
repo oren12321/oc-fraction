@@ -147,7 +147,6 @@ namespace math::core::types {
             F decimal_abs = std::abs(decimal);
 
             F decimal_int_part{std::floor(decimal_abs)};
-            F decimal_fractional_part{decimal_abs - decimal_int_part};
 
             if (decimal_abs == decimal_int_part) {
                 return { static_cast<I>(sign * decimal_abs), I{1} };

@@ -73,9 +73,9 @@ TEST(Fraction_test, have_reciprocal)
     using namespace math::core::types;
 
     Fraction f1 = 0;
-    EXPECT_THROW(f1.reciprocal(), std::overflow_error);
+    EXPECT_THROW(reciprocal(f1), std::overflow_error);
 
-    Fraction f2{ Fraction{-1, 2}.reciprocal() };
+    Fraction f2{ reciprocal(Fraction{-1, 2}) };
     EXPECT_EQ(f2.n(), -2);
     EXPECT_EQ(f2.d(), 1);
 }

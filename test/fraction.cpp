@@ -3,7 +3,7 @@
 #include <numbers>
 #include <cmath>
 
-#include <math/core/fraction.h>
+#include <computoc/fraction.h>
 
 TEST(Fraction_test, can_be_initialized_n_and_d_or_an_integer)
 {

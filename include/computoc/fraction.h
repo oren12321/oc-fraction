@@ -6,7 +6,7 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <math/core/utils.h>
+#include <computoc/utils.h>
 
 namespace math::core::types {
     template <typename T>

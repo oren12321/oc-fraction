@@ -6,7 +6,7 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <computoc/utils.h>
+#include <computoc/errors.h>
 
 namespace math::core::types {
     template <typename T>
@@ -21,7 +21,7 @@ namespace math::core::types {
         Fraction(I n = I{ 0 }, I d = I{ 1 })
             : n_(n), d_(d)
         {
-            CORE_EXPECT(d_ != I{ 0 }, std::invalid_argument, "denominator is zero");
+            COMPUTOC_THROW_IF_FALSE(d_ != I{ 0 }, std::invalid_argument, "denominator is zero");
 
             if (n_ == I{ 0 }) {
                 return;
@@ -202,7 +202,7 @@ namespace math::core::types {
     template<Integer I, Decimal F>
     inline Fraction<I, F> reciprocal(const Fraction<I, F>& other)
     {
-        CORE_EXPECT(other.n_ != I{ 0 }, std::overflow_error, "division by zero");
+        COMPUTOC_THROW_IF_FALSE(other.n_ != I{ 0 }, std::overflow_error, "division by zero");
 
         I sign = (other.n_ * other.d_) / std::abs(other.n_ * other.d_);
         return { other.d_ * sign, std::abs(other.n_) };

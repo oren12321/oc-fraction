@@ -1,5 +1,5 @@
-#ifndef MATH_TYPES_FRACTION_H
-#define MATH_TYPES_FRACTION_H
+#ifndef COMPUTOC_TYPES_FRACTION_H
+#define COMPUTOC_TYPES_FRACTION_H
 
 #include <type_traits>
 #include <limits>
@@ -13,8 +13,11 @@ namespace computoc::types {
         template <typename T>
         concept Integer = std::is_integral_v<T> && !std::is_same_v<T, bool> && std::is_signed_v<T>;
 
+#ifndef DECIMAL_CONCEPT_PATCH
+#define DECIMAL_CONCEPT_PATCH
         template <typename T>
         concept Decimal = std::is_floating_point_v<T>;
+#endif // DECIMAL_CONCEPT_PATCH
 
         template <Integer I = int, Decimal F = float>
         class Fraction {
@@ -255,4 +258,4 @@ namespace computoc {
     using types::details::reciprocal;
 }
 
-#endif
+#endif // COMPUTOC_TYPES_FRACTION_H

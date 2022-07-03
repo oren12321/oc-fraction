@@ -1,7 +1,6 @@
 #ifndef COMPUTOC_TYPES_FRACTION_H
 #define COMPUTOC_TYPES_FRACTION_H
 
-#include <type_traits>
 #include <limits>
 #include <cmath>
 #include <stdexcept>

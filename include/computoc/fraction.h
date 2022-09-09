@@ -8,7 +8,7 @@
 #include <computoc/errors.h>
 #include <computoc/concepts.h>
 
-namespace computoc::types {
+namespace computoc {
     namespace details {
         template <concepts::Integer I = int, concepts::Decimal F = float>
         class Fraction {
@@ -243,10 +243,7 @@ namespace computoc::types {
     }
 
     using details::Fraction;
-}
-
-namespace computoc {
-    using types::details::reciprocal;
+    using details::reciprocal;
 }
 
 #endif // COMPUTOC_TYPES_FRACTION_H

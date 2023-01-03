@@ -57,6 +57,10 @@ TEST(Fraction_test, can_be_compared_with_other_fraction_integer_or_decimal)
     EXPECT_NE(f1, 1);
     EXPECT_EQ(f1, 0.5);
     EXPECT_EQ(0.5, f1);
+
+    EXPECT_EQ(f1, (Fraction<long, double>{1, 2}));
+    EXPECT_EQ(f2, (Fraction<long, float>{1, 2}));
+    EXPECT_EQ(f2, 0.5f);
 }
 
 TEST(Fraction_test, can_be_negated)
@@ -105,6 +109,10 @@ TEST(Fraction_test, can_be_added_to_a_fraction_integer_or_decimal)
 
     f1 += 1;
     EXPECT_EQ(f1, 1.5);
+
+    EXPECT_EQ(f1, (f1 + Fraction<long, float>{}));
+    f1 += Fraction<long, float>{1l};
+    EXPECT_EQ(f1, 2.5);
 }
 
 TEST(Fraction_test, can_be_subracted_from_a_fraction_integer_or_decimal)
@@ -118,6 +126,10 @@ TEST(Fraction_test, can_be_subracted_from_a_fraction_integer_or_decimal)
 
     f1 -= 1;
     EXPECT_EQ(f1, -0.5);
+
+    EXPECT_EQ(f1, (f1 + Fraction<long, float>{}));
+    f1 -= Fraction<long, float>{1l};
+    EXPECT_EQ(f1, -1.5);
 }
 
 TEST(Fraction_test, can_be_multiply_by_a_fraction_integer_or_decimal)
@@ -131,6 +143,10 @@ TEST(Fraction_test, can_be_multiply_by_a_fraction_integer_or_decimal)
 
     f1 *= 2;
     EXPECT_EQ(f1, 1);
+
+    EXPECT_EQ(f1, (f1 * Fraction<long, float>{1l}));
+    f1 *= Fraction<long, float>{2l};
+    EXPECT_EQ(f1, 2.0);
 }
 
 TEST(Fraction_test, can_be_divided_by_a_fraction_integer_or_decimal)
@@ -144,6 +160,10 @@ TEST(Fraction_test, can_be_divided_by_a_fraction_integer_or_decimal)
 
     f1 /= 2;
     EXPECT_EQ(f1, 0.25);
+
+    EXPECT_EQ(f1, (f1 / Fraction<long, float>{1l}));
+    f1 /= Fraction<long, float>{2l};
+    EXPECT_EQ(f1, 0.125);
 }
 
 TEST(Fraction_test, can_be_powered_by_a_fraction_integer_or_decimal)
@@ -167,4 +187,64 @@ TEST(Fraction_test, complex_expressions_can_be_computed)
     Fraction f2{ 2, 15 };
 
     EXPECT_EQ(f2, f1);
+}
+
+TEST(Fraction_test, copy)
+{
+    using namespace computoc;
+
+    {
+        Fraction f1{ 1, 2 };
+
+        Fraction f2{ f1 };
+        EXPECT_EQ(f1, f2);
+
+        Fraction f3{};
+        f3 = f2;
+        EXPECT_EQ(f2, f3);
+    }
+
+    {
+        Fraction f1{ 1, 2 };
+
+        Fraction<int, float> f2{ f1 };
+        EXPECT_EQ(f1, f2);
+
+        Fraction<long, double> f3{};
+        f3 = f2;
+        EXPECT_EQ(f2, f3);
+    }
+}
+
+TEST(Fraction_test, move)
+{
+    using namespace computoc;
+
+    {
+        Fraction f1{ 1, 2 };
+        Fraction f1c{ f1 };
+
+        Fraction f2{ std::move(f1) };
+        EXPECT_EQ(f1c, f2);
+        EXPECT_EQ((Fraction{}), f1);
+
+        Fraction f3{};
+        f3 = std::move(f2);
+        EXPECT_EQ(f1c, f3);
+        EXPECT_EQ((Fraction{}), f2);
+    }
+
+    {
+        Fraction f1{ 1, 2 };
+        Fraction f1c{ f1 };
+
+        Fraction<int, float> f2{ std::move(f1) };
+        EXPECT_EQ(f1c, f2);
+        EXPECT_EQ((Fraction<int>{}), f1);
+
+        Fraction<long, double> f3{};
+        f3 = std::move(f2);
+        EXPECT_EQ(f1c, f3);
+        EXPECT_EQ((Fraction<int, float>{}), f2);
+    }
 }

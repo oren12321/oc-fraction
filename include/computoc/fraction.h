@@ -37,6 +37,64 @@ namespace computoc {
                 *this = decimal_to_fraction(d);
             }
 
+            Fraction(const Fraction<I, F>& other) = default;
+            Fraction<I, F>& operator=(const Fraction<I, F>& other) = default;
+
+            Fraction(Fraction<I, F>&& other)
+                : n_(other.n_), d_(other.d_)
+            {
+                other.n_ = I{ 0 };
+                other.d_ = I{ 1 };
+            }
+            Fraction<I, F> operator=(Fraction<I, F>&& other)
+            {
+                n_ = other.n_;
+                d_ = other.d_;
+
+                other.n_ = I{ 0 };
+                other.d_ = I{ 1 };
+                
+                return *this;
+            }
+
+            virtual ~Fraction() = default;
+
+            template <Integer I_o, Decimal F_o>
+            friend class Fraction;
+
+            template <Integer I_o, Decimal F_o>
+            Fraction(const Fraction<I_o, F_o>& other)
+                : n_(other.n_), d_(other.d_)
+            {
+            }
+            template <Integer I_o, Decimal F_o>
+            Fraction<I_o, F_o> operator=(const Fraction<I_o, F_o>& other)
+            {
+                n_ = other.n_;
+                d_ = other.d_;
+
+                return *this;
+            }
+
+            template <Integer I_o, Decimal F_o>
+            Fraction(Fraction<I_o, F_o>&& other)
+                : n_(other.n_), d_(other.d_)
+            {
+                other.n_ = I_o{ 0 };
+                other.d_ = I_o{ 1 };
+            }
+            template <Integer I_o, Decimal F_o>
+            Fraction<I_o, F_o> operator=(Fraction<I_o, F_o>&& other)
+            {
+                n_ = other.n_;
+                d_ = other.d_;
+
+                other.n_ = I_o{ 0 };
+                other.d_ = I_o{ 1 };
+
+                return *this;
+            }
+
             I n() const noexcept
             {
                 return n_;
@@ -78,6 +136,40 @@ namespace computoc {
             }
 
             Fraction<I, F>& operator/=(const Fraction<I, F> other) noexcept
+            {
+                return operator*=(reciprocal(other));
+            }
+
+            template <Integer I_o, Decimal F_o>
+            Fraction<I, F>& operator+=(const Fraction<I_o, F_o> other) noexcept
+            {
+                n_ = n_ * other.d_ + other.n_ * d_;
+                d_ = d_ * other.d_;
+                I g{ gcd(n_, d_) };
+                n_ /= g;
+                d_ /= g;
+                return *this;
+            }
+
+            template <Integer I_o, Decimal F_o>
+            Fraction<I, F>& operator-=(const Fraction<I_o, F_o> other) noexcept
+            {
+                return operator+=(-other);
+            }
+
+            template <Integer I_o, Decimal F_o>
+            Fraction<I, F>& operator*=(const Fraction<I_o, F_o> other) noexcept
+            {
+                n_ *= other.n_;
+                d_ *= other.d_;
+                I g{ gcd(n_, d_) };
+                n_ /= g;
+                d_ /= g;
+                return *this;
+            }
+
+            template <Integer I_o, Decimal F_o>
+            Fraction<I, F>& operator/=(const Fraction<I_o, F_o> other) noexcept
             {
                 return operator*=(reciprocal(other));
             }
@@ -156,7 +248,7 @@ namespace computoc {
             }
 
             I n_{ 0 };
-            I d_{ 0 };
+            I d_{ 1 };
         };
 
         template<Integer I, Decimal F>
@@ -180,32 +272,32 @@ namespace computoc {
             return { other.d() * sign, std::abs(other.n()) };
         }
 
-        template<Integer I, Decimal F>
-        inline bool operator==(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        inline bool operator==(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return lhs.n() == rhs.n() && lhs.d() == rhs.d();
         }
 
-        template<Integer I, Decimal F>
-        inline Fraction<I, F> operator+(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        inline Fraction<decltype(I1{} + I2{}), decltype(F1{} + F2{}) > operator+(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.d() + rhs.n() * lhs.d(), lhs.d() * rhs.d() };
         }
 
-        template<Integer I, Decimal F>
-        inline Fraction<I, F> operator-(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        inline Fraction<decltype(I1{} - I2{}), decltype(F1{} - F2{}) > operator-(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return operator+(lhs, -rhs);
         }
 
-        template<Integer I, Decimal F>
-        inline Fraction<I, F> operator*(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        inline Fraction<decltype(I1{} * I2{}), decltype(F1{} * F2{}) > operator*(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.n(), lhs.d() * rhs.d() };
         }
 
-        template<Integer I, Decimal F>
-        inline Fraction<I, F> operator/(const Fraction<I, F>& lhs, const Fraction<I, F>& rhs) noexcept
+        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        inline Fraction<decltype(I1{} / I2{}), decltype(F1{} / F2{}) > operator/(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return operator*(lhs, reciprocal(rhs));
         }

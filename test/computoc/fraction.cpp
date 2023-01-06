@@ -28,6 +28,8 @@ TEST(Fraction_test, can_be_initialized_n_and_d_or_an_integer)
     Fraction f5{ 1, -2 };
     EXPECT_EQ(f5.n(), -1);
     EXPECT_EQ(f5.d(), 2);
+
+    EXPECT_THROW((Fraction{ 0, 0 }), std::overflow_error);
 }
 
 TEST(Fraction_test, can_be_initalized_with_a_decimal)
@@ -226,12 +228,10 @@ TEST(Fraction_test, move)
 
         Fraction f2{ std::move(f1) };
         EXPECT_EQ(f1c, f2);
-        EXPECT_EQ((Fraction{}), f1);
 
         Fraction f3{};
         f3 = std::move(f2);
         EXPECT_EQ(f1c, f3);
-        EXPECT_EQ((Fraction{}), f2);
     }
 
     {
@@ -240,11 +240,9 @@ TEST(Fraction_test, move)
 
         Fraction<int, float> f2{ std::move(f1) };
         EXPECT_EQ(f1c, f2);
-        EXPECT_EQ((Fraction<int>{}), f1);
 
         Fraction<long, double> f3{};
         f3 = std::move(f2);
         EXPECT_EQ(f1c, f3);
-        EXPECT_EQ((Fraction<int, float>{}), f2);
     }
 }

@@ -73,17 +73,17 @@ namespace computoc {
                 return *this;
             }
 
-            I n() const noexcept
+            [[nodiscard]] I n() const noexcept
             {
                 return n_;
             }
 
-            I d() const noexcept
+            [[nodiscard]] I d() const noexcept
             {
                 return d_;
             }
 
-            operator F() const noexcept
+            [[nodiscard]] operator F() const noexcept
             {
                 return static_cast<F>(n_) / static_cast<F>(d_);
             }
@@ -153,7 +153,7 @@ namespace computoc {
             }
 
         private:
-            static I gcd(I a, I b) noexcept
+            [[nodiscard]] static I gcd(I a, I b) noexcept
             {
                 I t;
                 if (a > b) {
@@ -178,7 +178,7 @@ namespace computoc {
             //     Ni+1 = ROUND(X x Di+1)
             // Result:
             //     Ni+1/Di+1
-            static Fraction<I, F> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 }) noexcept
+            [[nodiscard]] static Fraction<I, F> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 }) noexcept
             {
                 F sign = decimal >= F{ 0 } ? F{ 1 } : F{ -1 };
 
@@ -230,19 +230,19 @@ namespace computoc {
         };
 
         template<Integer I, Decimal F>
-        inline Fraction<I, F> operator-(const Fraction<I, F>& other) noexcept
+        [[nodiscard]] inline Fraction<I, F> operator-(const Fraction<I, F>& other) noexcept
         {
             return { -other.n(), other.d() };
         }
 
         template<Integer I, Decimal F>
-        inline Fraction<I, F> operator+(const Fraction<I, F>& other) noexcept
+        [[nodiscard]] inline Fraction<I, F> operator+(const Fraction<I, F>& other) noexcept
         {
             return other;
         }
 
         template<Integer I, Decimal F>
-        inline Fraction<I, F> reciprocal(const Fraction<I, F>& other)
+        [[nodiscard]] inline Fraction<I, F> reciprocal(const Fraction<I, F>& other)
         {
             COMPUTOC_THROW_IF_FALSE(other.n() != I{ 0 }, std::overflow_error, "division by zero");
 
@@ -251,31 +251,31 @@ namespace computoc {
         }
 
         template<Integer I1, Decimal F1, Integer I2, Decimal F2>
-        inline bool operator==(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline bool operator==(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return lhs.n() == rhs.n() && lhs.d() == rhs.d();
         }
 
         template<Integer I1, Decimal F1, Integer I2, Decimal F2>
-        inline Fraction<decltype(I1{} + I2{}), decltype(F1{} + F2{}) > operator+(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline Fraction<decltype(I1{} + I2{}), decltype(F1{} + F2{}) > operator+(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.d() + rhs.n() * lhs.d(), lhs.d() * rhs.d() };
         }
 
         template<Integer I1, Decimal F1, Integer I2, Decimal F2>
-        inline Fraction<decltype(I1{} - I2{}), decltype(F1{} - F2{}) > operator-(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline Fraction<decltype(I1{} - I2{}), decltype(F1{} - F2{}) > operator-(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return operator+(lhs, -rhs);
         }
 
         template<Integer I1, Decimal F1, Integer I2, Decimal F2>
-        inline Fraction<decltype(I1{} * I2{}), decltype(F1{} * F2{}) > operator*(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline Fraction<decltype(I1{} * I2{}), decltype(F1{} * F2{}) > operator*(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.n(), lhs.d() * rhs.d() };
         }
 
         template<Integer I1, Decimal F1, Integer I2, Decimal F2>
-        inline Fraction<decltype(I1{} / I2{}), decltype(F1{} / F2{}) > operator/(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline Fraction<decltype(I1{} / I2{}), decltype(F1{} / F2{}) > operator/(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return operator*(lhs, reciprocal(rhs));
         }

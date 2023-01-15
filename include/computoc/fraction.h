@@ -5,7 +5,7 @@
 #include <cmath>
 #include <stdexcept>
 
-#include <computoc/errors.h>
+#include <erroc/errors.h>
 #include <computoc/concepts.h>
 
 namespace computoc {
@@ -16,7 +16,7 @@ namespace computoc {
             Fraction(I n = I{ 0 }, I d = I{ 1 })
                 : n_(n), d_(d)
             {
-                COMPUTOC_THROW_IF_FALSE(d_ != I{ 0 }, std::overflow_error, "division by zero");
+                ERROC_THROW_IF_FALSE(d_ != I{ 0 }, std::overflow_error, "division by zero");
 
                 if (n_ == I{ 0 }) {
                     d_ = I{ 1 };
@@ -244,7 +244,7 @@ namespace computoc {
         template<Integer I, Decimal F>
         [[nodiscard]] inline Fraction<I, F> reciprocal(const Fraction<I, F>& other)
         {
-            COMPUTOC_THROW_IF_FALSE(other.n() != I{ 0 }, std::overflow_error, "division by zero");
+            ERROC_THROW_IF_FALSE(other.n() != I{ 0 }, std::overflow_error, "division by zero");
 
             I sign = (other.n() * other.d()) / std::abs(other.n() * other.d());
             return { other.d() * sign, std::abs(other.n()) };

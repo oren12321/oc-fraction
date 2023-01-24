@@ -79,7 +79,7 @@ TEST(Fraction_test, have_reciprocal)
     using namespace computoc;
 
     Fraction f1 = 0;
-    EXPECT_THROW(reciprocal(f1), std::overflow_error);
+    EXPECT_THROW((void)reciprocal(f1), std::overflow_error);
 
     Fraction f2{ reciprocal(Fraction{-1, 2}) };
     EXPECT_EQ(f2.n(), -2);

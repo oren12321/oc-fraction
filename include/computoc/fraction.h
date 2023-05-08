@@ -3,20 +3,22 @@
 
 #include <limits>
 #include <stdexcept>
-
-#include <erroc/errors.h>
-#include <computoc/math.h>
-#include <computoc/concepts.h>
+#include <concepts>
+#include <cmath>
+#include <numeric>
+#include <limits>
 
 namespace computoc {
     namespace details {
-        template <Integer I = int, Decimal F = float>
+        template <std::integral I = int, std::floating_point F = float>
         class Fraction final {
         public:
             constexpr Fraction(I n = I{ 0 }, I d = I{ 1 })
                 : n_(n), d_(d)
             {
-                ERROC_EXPECT(d_ != I{ 0 }, std::overflow_error, "division by zero");
+                if (d_ == I{ 0 }) {
+                    throw std::overflow_error{ "division by zero" };
+                }
 
                 if (n_ == I{ 0 }) {
                     d_ = I{ 1 };
@@ -24,10 +26,10 @@ namespace computoc {
                 }
 
                 I sign = (n_ < I{ 0 } || d_ < I{ 0 }) ? I{ -1 } : I{ 1 };
-                n_ = abs(n_) * sign;
-                d_ = abs(d_);
+                n_ = std::abs(n_) * sign;
+                d_ = std::abs(d_);
 
-                I g = gcd(n_, d_);
+                I g = std::gcd(n_, d_);
                 n_ /= g;
                 d_ /= g;
             }
@@ -45,12 +47,12 @@ namespace computoc {
 
             ~Fraction() = default;
 
-            template <Integer I_o, Decimal F_o>
+            template <std::integral I_o, std::floating_point F_o>
             constexpr Fraction(const Fraction<I_o, F_o>& other) noexcept
                 : n_(other.n()), d_(other.d())
             {
             }
-            template <Integer I_o, Decimal F_o>
+            template <std::integral I_o, std::floating_point F_o>
             constexpr Fraction<I_o, F_o> operator=(const Fraction<I_o, F_o>& other) noexcept
             {
                 n_ = other.n();
@@ -59,12 +61,12 @@ namespace computoc {
                 return *this;
             }
 
-            template <Integer I_o, Decimal F_o>
+            template <std::integral I_o, std::floating_point F_o>
             constexpr Fraction(Fraction<I_o, F_o>&& other) noexcept
                 : n_(other.n()), d_(other.d())
             {
             }
-            template <Integer I_o, Decimal F_o>
+            template <std::integral I_o, std::floating_point F_o>
             constexpr Fraction<I_o, F_o> operator=(Fraction<I_o, F_o>&& other) noexcept
             {
                 n_ = other.n();
@@ -88,87 +90,71 @@ namespace computoc {
                 return static_cast<F>(n_) / static_cast<F>(d_);
             }
 
-            constexpr Fraction<I, F>& operator+=(const Fraction<I, F> other) noexcept
+            constexpr Fraction<I, F>& operator+=(const Fraction<I, F>& other) noexcept
             {
                 n_ = n_ * other.d_ + other.n_ * d_;
                 d_ = d_ * other.d_;
-                I g{ gcd(n_, d_) };
+                I g{ std::gcd(n_, d_) };
                 n_ /= g;
                 d_ /= g;
                 return *this;
             }
 
-            constexpr Fraction<I, F>& operator-=(const Fraction<I, F> other) noexcept
+            constexpr Fraction<I, F>& operator-=(const Fraction<I, F>& other) noexcept
             {
                 return operator+=(-other);
             }
 
-            constexpr Fraction<I, F>& operator*=(const Fraction<I, F> other) noexcept
+            constexpr Fraction<I, F>& operator*=(const Fraction<I, F>& other) noexcept
             {
                 n_ *= other.n_;
                 d_ *= other.d_;
-                I g{ gcd(n_, d_) };
+                I g{ std::gcd(n_, d_) };
                 n_ /= g;
                 d_ /= g;
                 return *this;
             }
 
-            constexpr Fraction<I, F>& operator/=(const Fraction<I, F> other)
+            constexpr Fraction<I, F>& operator/=(const Fraction<I, F>& other)
             {
                 return operator*=(reciprocal(other));
             }
 
-            template <Integer I_o, Decimal F_o>
-            constexpr Fraction<I, F>& operator+=(const Fraction<I_o, F_o> other) noexcept
+            template <std::integral I_o, std::floating_point F_o>
+            constexpr Fraction<I, F>& operator+=(const Fraction<I_o, F_o>& other) noexcept
             {
                 n_ = n_ * other.d() + other.n() * d_;
                 d_ = d_ * other.d();
-                I g{ gcd(n_, d_) };
+                I g{ std::gcd(n_, d_) };
                 n_ /= g;
                 d_ /= g;
                 return *this;
             }
 
-            template <Integer I_o, Decimal F_o>
-            constexpr Fraction<I, F>& operator-=(const Fraction<I_o, F_o> other) noexcept
+            template <std::integral I_o, std::floating_point F_o>
+            constexpr Fraction<I, F>& operator-=(const Fraction<I_o, F_o>& other) noexcept
             {
                 return operator+=(-other);
             }
 
-            template <Integer I_o, Decimal F_o>
-            constexpr Fraction<I, F>& operator*=(const Fraction<I_o, F_o> other) noexcept
+            template <std::integral I_o, std::floating_point F_o>
+            constexpr Fraction<I, F>& operator*=(const Fraction<I_o, F_o>& other) noexcept
             {
                 n_ *= other.n();
                 d_ *= other.d();
-                I g{ gcd(n_, d_) };
+                I g{ std::gcd(n_, d_) };
                 n_ /= g;
                 d_ /= g;
                 return *this;
             }
 
-            template <Integer I_o, Decimal F_o>
-            constexpr Fraction<I, F>& operator/=(const Fraction<I_o, F_o> other)
+            template <std::integral I_o, std::floating_point F_o>
+            constexpr Fraction<I, F>& operator/=(const Fraction<I_o, F_o>& other)
             {
                 return operator*=(reciprocal(other));
             }
 
         private:
-            [[nodiscard]] constexpr static I gcd(I a, I b) noexcept
-            {
-                I t;
-                if (a > b) {
-                    t = b;
-                    b = a;
-                    a = t;
-                }
-                while (b != I{ 0 }) {
-                    t = a % b;
-                    a = b;
-                    b = t;
-                }
-                return abs(a);
-            }
-
             // Initialize:
             //     Z1 = X
             //     D0 = 0, D1 = 1
@@ -182,9 +168,9 @@ namespace computoc {
             {
                 F sign = decimal >= F{ 0 } ? F{ 1 } : F{ -1 };
 
-                F decimal_abs = abs(decimal);
+                F decimal_abs = std::abs(decimal);
 
-                F decimal_int_part{ floor(decimal_abs) };
+                F decimal_int_part{ std::floor(decimal_abs) };
 
                 if (decimal_abs == decimal_int_part) {
                     return { static_cast<I>(sign * decimal_abs), I{1} };
@@ -196,28 +182,28 @@ namespace computoc {
 
                 F n_i{ 0 }; // Used for overflow check
 
-                F z_i_plus_1{ F{1} / (z_i - floor(z_i)) };
-                F d_i_plus_1{ d_i * floor(z_i_plus_1) + d_i_minus_1 };
-                F n_i_plus_1{ round(decimal_abs * d_i_plus_1) };
+                F z_i_plus_1{ F{1} / (z_i - std::floor(z_i)) };
+                F d_i_plus_1{ d_i * std::floor(z_i_plus_1) + d_i_minus_1 };
+                F n_i_plus_1{ std::round(decimal_abs * d_i_plus_1) };
 
-                F z_i_int_part{ floor(z_i) };
+                F z_i_int_part{ std::floor(z_i) };
 
                 while (
                     z_i_int_part != z_i &&
-                    abs(decimal_abs - n_i_plus_1 / d_i_plus_1) > accuracy) {
+                    std::abs(decimal_abs - n_i_plus_1 / d_i_plus_1) > accuracy) {
                     z_i = z_i_plus_1;
                     d_i_minus_1 = d_i;
                     d_i = d_i_plus_1;
 
                     n_i = n_i_plus_1;
 
-                    z_i_plus_1 = F{ 1 } / (z_i - floor(z_i));
-                    d_i_plus_1 = d_i * floor(z_i_plus_1) + d_i_minus_1;
-                    n_i_plus_1 = round(decimal_abs * d_i_plus_1);
+                    z_i_plus_1 = F{ 1 } / (z_i - std::floor(z_i));
+                    d_i_plus_1 = d_i * std::floor(z_i_plus_1) + d_i_minus_1;
+                    n_i_plus_1 = std::round(decimal_abs * d_i_plus_1);
 
-                    z_i_int_part = floor(z_i);
+                    z_i_int_part = std::floor(z_i);
 
-                    F max_int{ static_cast<F>(max<I>()) };
+                    F max_int{ static_cast<F>(std::numeric_limits<I>::max()) };
                     if (n_i_plus_1 > max_int || d_i_plus_1 > max_int) {
                         return { static_cast<I>(sign * n_i), static_cast<I>(d_i) };
                     }
@@ -229,52 +215,54 @@ namespace computoc {
             I d_{ 1 };
         };
 
-        template<Integer I, Decimal F>
+        template<std::integral I, std::floating_point F>
         [[nodiscard]] inline constexpr Fraction<I, F> operator-(const Fraction<I, F>& other) noexcept
         {
             return { -other.n(), other.d() };
         }
 
-        template<Integer I, Decimal F>
+        template<std::integral I, std::floating_point F>
         [[nodiscard]] inline constexpr Fraction<I, F> operator+(const Fraction<I, F>& other) noexcept
         {
             return other;
         }
 
-        template<Integer I, Decimal F>
+        template<std::integral I, std::floating_point F>
         [[nodiscard]] inline constexpr Fraction<I, F> reciprocal(const Fraction<I, F>& other)
         {
-            ERROC_EXPECT(other.n() != I{ 0 }, std::overflow_error, "division by zero");
+            if (other.n() == I{ 0 }) {
+                throw std::overflow_error{ "division by zero" };
+            }
 
             I sign = (other.n() * other.d()) / abs(other.n() * other.d());
-            return { other.d() * sign, abs(other.n()) };
+            return { other.d() * sign, std::abs(other.n()) };
         }
 
-        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
         [[nodiscard]] inline constexpr bool operator==(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return lhs.n() == rhs.n() && lhs.d() == rhs.d();
         }
 
-        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
         [[nodiscard]] inline constexpr Fraction<decltype(I1{} + I2{}), decltype(F1{} + F2{}) > operator+(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.d() + rhs.n() * lhs.d(), lhs.d() * rhs.d() };
         }
 
-        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
         [[nodiscard]] inline constexpr Fraction<decltype(I1{} - I2{}), decltype(F1{} - F2{}) > operator-(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return operator+(lhs, -rhs);
         }
 
-        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
         [[nodiscard]] inline constexpr Fraction<decltype(I1{} * I2{}), decltype(F1{} * F2{}) > operator*(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.n(), lhs.d() * rhs.d() };
         }
 
-        template<Integer I1, Decimal F1, Integer I2, Decimal F2>
+        template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
         [[nodiscard]] inline constexpr Fraction<decltype(I1{} / I2{}), decltype(F1{} / F2{}) > operator/(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
         {
             return operator*(lhs, reciprocal(rhs));

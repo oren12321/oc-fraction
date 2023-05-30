@@ -42,7 +42,7 @@ WORKDIR /tmp/
 COPY . /tmp/
 RUN cmake . -DIN_DOCKER=TRUE -DCMAKE_BUILD_TYPE=Release \
  && make -j$(nproc) \
- && ./tests/samplelib_tests \
- && ./benchmark/samplelib_benchmark \
+ && ./samplelib_tests \
+ && ./samplelib_benchmark \
  && rm -rf /tmp/*
 

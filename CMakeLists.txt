@@ -56,6 +56,7 @@ target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME} GTest::gtest GTest::
 set_property(TARGET ${PROJECT_NAME}_tests PROPERTY CXX_STANDARD 20)
 
 if (DEFINED IN_DOCKER)
+    find_package(GTest REQUIRED)
     find_package(benchmark REQUIRED)
 endif()
 

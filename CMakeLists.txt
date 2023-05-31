@@ -28,7 +28,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 if (WIN32)
     add_library(${PROJECT_NAME}_
-        ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME}/sample.h)
+        ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/sample.h)
     set_target_properties(${PROJECT_NAME}_ PROPERTIES LINKER_LANGUAGE CXX)
     target_link_libraries(${PROJECT_NAME}_ ${PROJECT_NAME})
     set_property(TARGET ${PROJECT_NAME}_ PROPERTY CXX_STANDARD 20)

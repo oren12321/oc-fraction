@@ -2,13 +2,13 @@
 
 #include <string>
 
-#include <samplelib/sample.h>
+#include <sample/sample.h>
 
-static void BM_samplelib_add(benchmark::State& state) {
+static void BM_sample_add(benchmark::State& state) {
     for (auto _ : state) {
-        auto res = add(std::string{"str1"}, std::string{"str2"});
+        auto res = sample::add(std::string{"str1"}, std::string{"str2"});
         benchmark::DoNotOptimize(res);
     }
 }
 
-BENCHMARK(BM_samplelib_add);
+BENCHMARK(BM_sample_add);

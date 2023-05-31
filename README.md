@@ -1,2 +1,2 @@
-# cpp-sample-library
-A C++ sample library project including tests and benchmark
+# cpp-header-only-library
+A C++ sample header-only library project including tests, benchmark and installation

@@ -1,18 +1,9 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.24.4)
 
 project(sample
     VERSION 1.0.0
     DESCRIPTION "A header-only C++ sample project"
     HOMEPAGE_URL "https://github.com/oren12321/cpp-header-only-sample-library")
-
-# Remove CMake warning
-set(DUMMY ${IN_DOCKER})
-
-if (DEFINED IN_DOCKER)
-    message("-- Build env: Dockerfile")
-else()
-    message("-- Build env: Host machine")
-endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -Wall")
@@ -63,26 +54,21 @@ install(
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION include)
 
-if (NOT DEFINED IN_DOCKER)
-    include(FetchContent)
+include(FetchContent)
 
-    FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.11.0)
-    FetchContent_MakeAvailable(googletest)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG release-1.11.0
+    FIND_PACKAGE_ARGS NAMES GTest)
+FetchContent_MakeAvailable(googletest)
 
-    FetchContent_Declare(
-        benchmark
-        GIT_REPOSITORY https://github.com/google/benchmark.git
-        GIT_TAG v1.6.1)
-    FetchContent_MakeAvailable(benchmark)
-endif()
-
-if (DEFINED IN_DOCKER)
-    find_package(GTest REQUIRED)
-    find_package(benchmark REQUIRED)
-endif()
+FetchContent_Declare(
+    benchmark
+    GIT_REPOSITORY https://github.com/google/benchmark.git
+    GIT_TAG v1.6.1
+    FIND_PACKAGE_ARGS)
+FetchContent_MakeAvailable(benchmark)
 
 add_executable(${PROJECT_NAME}_tests
     tests/sample.cpp

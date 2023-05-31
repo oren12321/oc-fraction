@@ -14,7 +14,7 @@ RUN apt update && apt install -y --no-install-recommends \
 WORKDIR /tmp/
 RUN apt-get update && apt-get install -y wget \
  && rm -rf /var/lib/apt/lists/* \
- && wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download/v3.22.3/cmake-3.22.3-Linux-x86_64.sh \
+ && wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4-Linux-x86_64.sh \
  && sh cmake-linux.sh -- --skip-license --prefix=/usr/local \
  && rm -rf /tmp/*
 

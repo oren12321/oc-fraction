@@ -40,9 +40,9 @@ RUN git clone -b v1.6.1 https://github.com/google/benchmark.git \
 
 WORKDIR /tmp/
 COPY . /tmp/
-RUN cmake . -DIN_DOCKER=TRUE -DCMAKE_BUILD_TYPE=Release \
+RUN cmake . -DCMAKE_BUILD_TYPE=Release \
  && make -j$(nproc) \
- && ./samplelib_tests \
- && ./samplelib_benchmark \
+ && ./sample_tests \
+ && ./sample_benchmark \
  && rm -rf /tmp/*
 

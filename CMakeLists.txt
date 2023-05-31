@@ -25,12 +25,13 @@ target_include_directories(${PROJECT_NAME} INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 if (WIN32)
     add_library(${PROJECT_NAME}_
         ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/sample.h)
     set_target_properties(${PROJECT_NAME}_ PROPERTIES LINKER_LANGUAGE CXX)
-    target_link_libraries(${PROJECT_NAME}_ ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}_ ${PROJECT_NAME}::${PROJECT_NAME})
     set_property(TARGET ${PROJECT_NAME}_ PROPERTY CXX_STANDARD 20)
 endif()
 
@@ -87,12 +88,12 @@ add_executable(${PROJECT_NAME}_tests
     tests/sample.cpp
     tests/main.cpp)
 target_include_directories(${PROJECT_NAME}_tests PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME} GTest::gtest GTest::gtest_main)
+target_link_libraries(${PROJECT_NAME}_tests ${PROJECT_NAME}::${PROJECT_NAME} GTest::gtest GTest::gtest_main)
 set_property(TARGET ${PROJECT_NAME}_tests PROPERTY CXX_STANDARD 20)
 
 add_executable(${PROJECT_NAME}_benchmark
     benchmark/sample.cpp
     benchmark/main.cpp)
 target_include_directories(${PROJECT_NAME}_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/include)
-target_link_libraries(${PROJECT_NAME}_benchmark ${PROJECT_NAME} benchmark::benchmark)
+target_link_libraries(${PROJECT_NAME}_benchmark ${PROJECT_NAME}::${PROJECT_NAME} benchmark::benchmark)
 set_property(TARGET ${PROJECT_NAME}_benchmark PROPERTY CXX_STANDARD 20)

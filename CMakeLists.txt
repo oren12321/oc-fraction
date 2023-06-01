@@ -81,3 +81,6 @@ add_executable(${PROJECT_NAME}_benchmark ${BENCHMARK_SRCS})
 target_include_directories(${PROJECT_NAME}_benchmark PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(${PROJECT_NAME}_benchmark ${PROJECT_NAME}::${PROJECT_NAME} benchmark::benchmark)
 set_property(TARGET ${PROJECT_NAME}_benchmark PROPERTY CXX_STANDARD 20)
+
+add_custom_target(library_tests COMMAND ${PROJECT_NAME}_tests DEPENDS ${PROJECT_NAME}_tests)
+add_custom_target(library_benchmark COMMAND ${PROJECT_NAME}_benchmark DEPENDS ${PROJECT_NAME}_benchmark)

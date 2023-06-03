@@ -1,5 +1,5 @@
-#ifndef COMPUTOC_TYPES_FRACTION_H
-#define COMPUTOC_TYPES_FRACTION_H
+#ifndef OC_FRACTION_H
+#define OC_FRACTION_H
 
 #include <limits>
 #include <stdexcept>
@@ -8,7 +8,7 @@
 #include <numeric>
 #include <limits>
 
-namespace computoc {
+namespace oc {
     namespace details {
         template <std::integral I = int, std::floating_point F = float>
         class Fraction final {
@@ -273,4 +273,4 @@ namespace computoc {
     using details::reciprocal;
 }
 
-#endif // COMPUTOC_TYPES_FRACTION_H
+#endif // OC_FRACTION_H

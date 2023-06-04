@@ -11,9 +11,9 @@
 namespace oc {
     namespace details {
         template <std::integral I = int, std::floating_point F = float>
-        class Fraction final {
+        class fraction final {
         public:
-            constexpr Fraction(I n = I{ 0 }, I d = I{ 1 })
+            constexpr fraction(I n = I{ 0 }, I d = I{ 1 })
                 : n_(n), d_(d)
             {
                 if (d_ == I{ 0 }) {
@@ -34,26 +34,26 @@ namespace oc {
                 d_ /= g;
             }
 
-            constexpr Fraction(F d) noexcept
+            constexpr fraction(F d) noexcept
             {
                 *this = decimal_to_fraction(d);
             }
 
-            constexpr Fraction(const Fraction<I, F>& other) = default;
-            constexpr Fraction<I, F>& operator=(const Fraction<I, F>& other) = default;
+            constexpr fraction(const fraction<I, F>& other) = default;
+            constexpr fraction<I, F>& operator=(const fraction<I, F>& other) = default;
 
-            constexpr Fraction(Fraction<I, F>&& other) = default;
-            constexpr Fraction<I, F>& operator=(Fraction<I, F>&& other) = default;
+            constexpr fraction(fraction<I, F>&& other) = default;
+            constexpr fraction<I, F>& operator=(fraction<I, F>&& other) = default;
 
-            ~Fraction() = default;
+            ~fraction() = default;
 
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction(const Fraction<I_o, F_o>& other) noexcept
+            constexpr fraction(const fraction<I_o, F_o>& other) noexcept
                 : n_(other.n()), d_(other.d())
             {
             }
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction<I_o, F_o> operator=(const Fraction<I_o, F_o>& other) noexcept
+            constexpr fraction<I_o, F_o> operator=(const fraction<I_o, F_o>& other) noexcept
             {
                 n_ = other.n();
                 d_ = other.d();
@@ -62,12 +62,12 @@ namespace oc {
             }
 
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction(Fraction<I_o, F_o>&& other) noexcept
+            constexpr fraction(fraction<I_o, F_o>&& other) noexcept
                 : n_(other.n()), d_(other.d())
             {
             }
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction<I_o, F_o> operator=(Fraction<I_o, F_o>&& other) noexcept
+            constexpr fraction<I_o, F_o> operator=(fraction<I_o, F_o>&& other) noexcept
             {
                 n_ = other.n();
                 d_ = other.d();
@@ -90,7 +90,7 @@ namespace oc {
                 return static_cast<F>(n_) / static_cast<F>(d_);
             }
 
-            constexpr Fraction<I, F>& operator+=(const Fraction<I, F>& other) noexcept
+            constexpr fraction<I, F>& operator+=(const fraction<I, F>& other) noexcept
             {
                 n_ = n_ * other.d_ + other.n_ * d_;
                 d_ = d_ * other.d_;
@@ -100,12 +100,12 @@ namespace oc {
                 return *this;
             }
 
-            constexpr Fraction<I, F>& operator-=(const Fraction<I, F>& other) noexcept
+            constexpr fraction<I, F>& operator-=(const fraction<I, F>& other) noexcept
             {
                 return operator+=(-other);
             }
 
-            constexpr Fraction<I, F>& operator*=(const Fraction<I, F>& other) noexcept
+            constexpr fraction<I, F>& operator*=(const fraction<I, F>& other) noexcept
             {
                 n_ *= other.n_;
                 d_ *= other.d_;
@@ -115,13 +115,13 @@ namespace oc {
                 return *this;
             }
 
-            constexpr Fraction<I, F>& operator/=(const Fraction<I, F>& other)
+            constexpr fraction<I, F>& operator/=(const fraction<I, F>& other)
             {
                 return operator*=(reciprocal(other));
             }
 
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction<I, F>& operator+=(const Fraction<I_o, F_o>& other) noexcept
+            constexpr fraction<I, F>& operator+=(const fraction<I_o, F_o>& other) noexcept
             {
                 n_ = n_ * other.d() + other.n() * d_;
                 d_ = d_ * other.d();
@@ -132,13 +132,13 @@ namespace oc {
             }
 
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction<I, F>& operator-=(const Fraction<I_o, F_o>& other) noexcept
+            constexpr fraction<I, F>& operator-=(const fraction<I_o, F_o>& other) noexcept
             {
                 return operator+=(-other);
             }
 
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction<I, F>& operator*=(const Fraction<I_o, F_o>& other) noexcept
+            constexpr fraction<I, F>& operator*=(const fraction<I_o, F_o>& other) noexcept
             {
                 n_ *= other.n();
                 d_ *= other.d();
@@ -149,7 +149,7 @@ namespace oc {
             }
 
             template <std::integral I_o, std::floating_point F_o>
-            constexpr Fraction<I, F>& operator/=(const Fraction<I_o, F_o>& other)
+            constexpr fraction<I, F>& operator/=(const fraction<I_o, F_o>& other)
             {
                 return operator*=(reciprocal(other));
             }
@@ -164,7 +164,7 @@ namespace oc {
             //     Ni+1 = ROUND(X x Di+1)
             // Result:
             //     Ni+1/Di+1
-            [[nodiscard]] constexpr static Fraction<I, F> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 }) noexcept
+            [[nodiscard]] constexpr static fraction<I, F> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 }) noexcept
             {
                 F sign = decimal >= F{ 0 } ? F{ 1 } : F{ -1 };
 
@@ -216,19 +216,19 @@ namespace oc {
         };
 
         template<std::integral I, std::floating_point F>
-        [[nodiscard]] inline constexpr Fraction<I, F> operator-(const Fraction<I, F>& other) noexcept
+        [[nodiscard]] inline constexpr fraction<I, F> operator-(const fraction<I, F>& other) noexcept
         {
             return { -other.n(), other.d() };
         }
 
         template<std::integral I, std::floating_point F>
-        [[nodiscard]] inline constexpr Fraction<I, F> operator+(const Fraction<I, F>& other) noexcept
+        [[nodiscard]] inline constexpr fraction<I, F> operator+(const fraction<I, F>& other) noexcept
         {
             return other;
         }
 
         template<std::integral I, std::floating_point F>
-        [[nodiscard]] inline constexpr Fraction<I, F> reciprocal(const Fraction<I, F>& other)
+        [[nodiscard]] inline constexpr fraction<I, F> reciprocal(const fraction<I, F>& other)
         {
             if (other.n() == I{ 0 }) {
                 throw std::overflow_error{ "division by zero" };
@@ -239,37 +239,37 @@ namespace oc {
         }
 
         template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
-        [[nodiscard]] inline constexpr bool operator==(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline constexpr bool operator==(const fraction<I1, F1>& lhs, const fraction<I2, F2>& rhs) noexcept
         {
             return lhs.n() == rhs.n() && lhs.d() == rhs.d();
         }
 
         template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
-        [[nodiscard]] inline constexpr Fraction<decltype(I1{} + I2{}), decltype(F1{} + F2{}) > operator+(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline constexpr fraction<decltype(I1{} + I2{}), decltype(F1{} + F2{}) > operator+(const fraction<I1, F1>& lhs, const fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.d() + rhs.n() * lhs.d(), lhs.d() * rhs.d() };
         }
 
         template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
-        [[nodiscard]] inline constexpr Fraction<decltype(I1{} - I2{}), decltype(F1{} - F2{}) > operator-(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline constexpr fraction<decltype(I1{} - I2{}), decltype(F1{} - F2{}) > operator-(const fraction<I1, F1>& lhs, const fraction<I2, F2>& rhs) noexcept
         {
             return operator+(lhs, -rhs);
         }
 
         template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
-        [[nodiscard]] inline constexpr Fraction<decltype(I1{} * I2{}), decltype(F1{} * F2{}) > operator*(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline constexpr fraction<decltype(I1{} * I2{}), decltype(F1{} * F2{}) > operator*(const fraction<I1, F1>& lhs, const fraction<I2, F2>& rhs) noexcept
         {
             return { lhs.n() * rhs.n(), lhs.d() * rhs.d() };
         }
 
         template<std::integral I1, std::floating_point F1, std::integral I2, std::floating_point F2>
-        [[nodiscard]] inline constexpr Fraction<decltype(I1{} / I2{}), decltype(F1{} / F2{}) > operator/(const Fraction<I1, F1>& lhs, const Fraction<I2, F2>& rhs) noexcept
+        [[nodiscard]] inline constexpr fraction<decltype(I1{} / I2{}), decltype(F1{} / F2{}) > operator/(const fraction<I1, F1>& lhs, const fraction<I2, F2>& rhs) noexcept
         {
             return operator*(lhs, reciprocal(rhs));
         }
     }
 
-    using details::Fraction;
+    using details::fraction;
     using details::reciprocal;
 }
 

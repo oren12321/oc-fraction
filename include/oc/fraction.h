@@ -234,7 +234,7 @@ namespace oc {
                 throw std::overflow_error{ "division by zero" };
             }
 
-            I sign = (other.n() * other.d()) / abs(other.n() * other.d());
+            I sign = (other.n() * other.d()) / std::abs(other.n() * other.d());
             return { other.d() * sign, std::abs(other.n()) };
         }
 

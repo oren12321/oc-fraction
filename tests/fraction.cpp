@@ -2,6 +2,7 @@
 
 #include <numbers>
 #include <cmath>
+#include <sstream>
 
 #include <oc/fraction.h>
 
@@ -244,5 +245,31 @@ TEST(fraction_test, move)
         fraction<long, double> f3{};
         f3 = std::move(f2);
         EXPECT_EQ(f1c, f3);
+    }
+}
+
+TEST(fraction_test, print)
+{
+    using namespace oc;
+
+    {
+        fraction f = 5;
+        std::stringstream ss;
+        ss << f;
+        EXPECT_EQ(ss.str(), "5");
+    }
+
+    {
+        fraction f = 0;
+        std::stringstream ss;
+        ss << f;
+        EXPECT_EQ(ss.str(), "0");
+    }
+
+    {
+        fraction f(1, -5);
+        std::stringstream ss;
+        ss << f;
+        EXPECT_EQ(ss.str(), "-1/5");
     }
 }

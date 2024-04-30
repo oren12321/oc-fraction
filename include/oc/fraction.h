@@ -267,6 +267,18 @@ namespace oc {
         {
             return operator*(lhs, reciprocal(rhs));
         }
+
+        template <std::integral I = int, std::floating_point F = float>
+        std::ostream& operator<<(std::ostream& os, const details::fraction<I, F>& f)
+        {
+            if (f.d() == 1 || f.n() == 0) {
+                os << f.n();
+                return os;
+            }
+
+            os << f.n() << '/' << f.d();
+            return os;
+        }
     }
 
     using details::fraction;

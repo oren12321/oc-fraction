@@ -36,7 +36,7 @@ namespace oc {
 
             constexpr fraction(F d) noexcept
             {
-                *this = decimal_to_fraction(d);
+                *this = decimal_to_fraction<I, F>(d);
             }
 
             constexpr fraction(const fraction<I, F>& other) = default;
@@ -155,65 +155,98 @@ namespace oc {
             }
 
         private:
-            // Initialize:
-            //     Z1 = X
-            //     D0 = 0, D1 = 1
-            // Repeat until convergance:
-            //     Zi+1 = 1 / (Zi - INT(Zi))
-            //     Di+1 = Di x INT(Z+1) + Di-1
-            //     Ni+1 = ROUND(X x Di+1)
-            // Result:
-            //     Ni+1/Di+1
-            [[nodiscard]] constexpr static fraction<I, F> decimal_to_fraction(F decimal, F accuracy = F{ 1e-19 }) noexcept
-            {
-                F sign = decimal >= F{ 0 } ? F{ 1 } : F{ -1 };
-
-                F decimal_abs = std::abs(decimal);
-
-                F decimal_int_part{ std::floor(decimal_abs) };
-
-                if (decimal_abs == decimal_int_part) {
-                    return { static_cast<I>(sign * decimal_abs), I{1} };
-                }
-
-                F z_i{ decimal_abs };
-                F d_i{ 1 };
-                F d_i_minus_1{ 0 };
-
-                F n_i{ 0 }; // Used for overflow check
-
-                F z_i_plus_1{ F{1} / (z_i - std::floor(z_i)) };
-                F d_i_plus_1{ d_i * std::floor(z_i_plus_1) + d_i_minus_1 };
-                F n_i_plus_1{ std::round(decimal_abs * d_i_plus_1) };
-
-                F z_i_int_part{ std::floor(z_i) };
-
-                while (
-                    z_i_int_part != z_i &&
-                    std::abs(decimal_abs - n_i_plus_1 / d_i_plus_1) > accuracy) {
-                    z_i = z_i_plus_1;
-                    d_i_minus_1 = d_i;
-                    d_i = d_i_plus_1;
-
-                    n_i = n_i_plus_1;
-
-                    z_i_plus_1 = F{ 1 } / (z_i - std::floor(z_i));
-                    d_i_plus_1 = d_i * std::floor(z_i_plus_1) + d_i_minus_1;
-                    n_i_plus_1 = std::round(decimal_abs * d_i_plus_1);
-
-                    z_i_int_part = std::floor(z_i);
-
-                    F max_int{ static_cast<F>(std::numeric_limits<I>::max()) };
-                    if (n_i_plus_1 > max_int || d_i_plus_1 > max_int) {
-                        return { static_cast<I>(sign * n_i), static_cast<I>(d_i) };
-                    }
-                }
-                return { static_cast<I>(sign * n_i_plus_1), static_cast<I>(d_i_plus_1) };
-            }
-
             I n_{ 0 };
             I d_{ 1 };
         };
+
+        /*
+        * Given a decimal number, this function returns a fraction at specified accuracy with
+        * respect to the decimal number.
+        * 
+        * The algorithm of this function is an iterative one, in such way that it tries to
+        * estimate the fraction until the difference between the floating number devision
+        * of the fraction numerator/denominator and the decimal number is suitable to the
+        * requested accuracy.
+        * 
+        * Algorithm:
+        * ----------
+        * 
+        * The main iterative variables are:
+        * - Z - used for two purposes: partial denominator estimation, and to check if
+        *   denominator is converged.
+        * - D - the estimated denominator
+        * - N - the estimated numerator
+        * 
+        * Considering the input decimal number is X and i is the iteration index, the
+        * iteration formulas are as follows:
+        *   initial values:
+        *       Z0 = X
+        *       D0 = 0, D1 = 1
+        *       N0 = 0
+        * 
+        *   one iteration:
+        *       Partial estimation of the denominator:
+        *       Zi+1 = 1 / (Zi - floor(Zi))
+        * 
+        *       Denominator estimation:
+        *       Di+1 = Di * floor(Zi+1) + Di-1
+        *       (equivelant to Di+1 = Di / d + Di-1 s.t. d is the required estimation)
+        * 
+        *       Numerator estimation:
+        *       Ni+1 = round(X * Di+1)
+        *       (equivelant to N = (n/d)*D s.t. n and d are the required estimations)
+        * 
+        * These iterations should be done until one of the following conditions fulfil:
+        * - The estimated denominator is converged:
+        *       Zi = floor(Zi)
+        * - The estimated fraction is suitable for the specified accuracy:
+        *       abs(abs(X) - Ni+1 / Di+1) <= accuracy
+        */
+        template <std::integral I = int, std::floating_point F = float>
+        [[nodiscard]] inline constexpr fraction<I, F> decimal_to_fraction(F decimal, F accuracy = F{1e-19}) noexcept
+        {
+            F sign = decimal >= F{0} ? F{1} : F{-1};
+
+            // If the decimal number is equal to its integer part,
+            // conversion is not required.
+            if (std::abs(decimal) == std::floor(std::abs(decimal))) {
+                return {static_cast<I>(sign * std::abs(decimal)), I{1}};
+            }
+
+            // Initialization
+            F z_i{std::abs(decimal)};
+            F d_i{1};
+            F d_i_minus_1{0};
+
+            F n_i{0}; // Used for overflow check
+
+            // Estimation
+            F z_i_plus_1{F{1} / (z_i - std::floor(z_i))};
+            F d_i_plus_1{d_i * std::floor(z_i_plus_1) + d_i_minus_1};
+            F n_i_plus_1{std::round(std::abs(decimal) * d_i_plus_1)};
+
+            while (std::floor(z_i) != z_i && std::abs(std::abs(decimal) - n_i_plus_1 / d_i_plus_1) > accuracy) {
+                // Save previous estimations
+                z_i = z_i_plus_1;
+                d_i_minus_1 = d_i;
+                d_i = d_i_plus_1;
+
+                n_i = n_i_plus_1;
+
+                // Estimation
+                z_i_plus_1 = F{1} / (z_i - std::floor(z_i));
+                d_i_plus_1 = d_i * std::floor(z_i_plus_1) + d_i_minus_1;
+                n_i_plus_1 = std::round(std::abs(decimal) * d_i_plus_1);
+
+                // Perform overflow check. If either on of the current estimations
+                // is overflow, return the previous estimations.
+                F max_int{static_cast<F>(std::numeric_limits<I>::max())};
+                if (n_i_plus_1 > max_int || d_i_plus_1 > max_int) {
+                    return {static_cast<I>(sign * n_i), static_cast<I>(d_i)};
+                }
+            }
+            return {static_cast<I>(sign * n_i_plus_1), static_cast<I>(d_i_plus_1)};
+        }
 
         template<std::integral I, std::floating_point F>
         [[nodiscard]] inline constexpr fraction<I, F> operator-(const fraction<I, F>& other) noexcept
